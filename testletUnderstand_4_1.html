@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <title> Testlet by shmorgendiggle </title>
+<style>body{background-color:#6b6b6b;}</style>
+    <canvas id="myCanvas" width="1200" height="800" style="border:1px solid #d3d3d3; position: absolute; left:500px;">
+        Your browser does not support the HTML canvas tag.</canvas>
+<h1>Testlet Understand</h1>
+input your text as so:<br>
+question 1`answer 1<br>
+question 2`answer 2<br>
+question 3`answer 3<br>
+it is reccomended that you put your text into a text editor to save as this gets deleted when you refresh<br>
+for multiple choice, input at least 4 questions and answers.<br>
+don't make paragraphs at the end.
+use a minimum of 5 questions and answers for multiple choice.
+<form>
+    <label for="fname">input Understand text:</label>
+    <br>
+    <textarea style="color:blue;" id="textareainput" name="textareainput" rows="4" cols="50"></textarea><br>
+    <input type="checkbox" id="shuffle?" name="shuffle?" value="shuffle?">
+    <label for="shuffle?"> shuffle?</label><br>
+    <input type="checkbox" id="swapQnA?" name="swapQnA?" value="swapQnA?">
+    <label for="swapQnA?"> swapQnA?</label><br>
+    <label for="cars">multiple choice or enter text?</label>
+    <select name="mcoret" id="mcoret">
+    <option value="mc">multiple choice</option>
+    <option value="et">enter text</option>
+    </select>
+    <br>
+    <button id="use" type="button" value="my_button" onclick="buttonPress()">use text</button><br>
+    <label for="answertextlabel">answertext(use for enter text):</label>
+    <input type="answertext" id="answertext" name="answertext"><br>
+    <button id="buanpr" type="button" value="buanpr" onclick="buttonAnswerPress()">answer</button><br>
+</form>
+    <script>
+        var accuracy = 0;
+        var questionNum = 0;
+        var answerNum = 0;
+        var screen = "";
+        var text_input;
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        var selectedans = 0;
+        var answerrng1 = 0;
+        var answerrng2 = 0;
+        var answerrng3 = 0;
+        var answerrng4 = 0;
+        var mousex = 0;
+        var mousey = 0;
+        var canvasColor = "white";
+        var answered = false;
+        var anticrash = 0;
+        var wasEnterNotPressed = true;
+        var wasKeyNotPressed = true;
+        var keptAnswer = "";
+        qna = [];
+        questions = [];
+        answers = [];
+        mcquestion = [];
+        mcanswer = [];
+        answeredornot = [];
+        function buttonPress(){
+            canvasColor = "white"
+            if(document.getElementById("mcoret").value == "mc"){
+                screen = "multiplechoice";
+            }
+            if(document.getElementById("mcoret").value == "et"){
+                screen = "entertext";
+            }
+            qna = [];
+            questions = [];
+            answers = [];
+            qna.push(text_input.split("\n"));
+            if(document.getElementById("shuffle?").checked){
+                shuffleArray(qna);
+            }
+            if(document.getElementById("swapQnA?").checked){
+                for(let i = 0; i < qna[0].length; i++){
+                    questions.push(qna[0][i].toString().split('`')[1]);
+                    answers.push(qna[0][i].toString().split('`')[0]);
+                }
+            }
+            else{
+                for(let i = 0; i < qna[0].length; i++){
+                    questions.push(qna[0][i].toString().split('`')[0]);
+                    answers.push(qna[0][i].toString().split('`')[1]);
+                }
+            }
+            answerNum = (Math.floor(Math.random() * 4)+1);
+            answerrng1=generateRandom(0, answers.length-1, answers[questionNum]);
+            answerrng2=generateRandom(0, answers.length-1, answers[questionNum]);
+            answerrng3=generateRandom(0, answers.length-1, answers[questionNum]);
+            answerrng4=generateRandom(0, answers.length-1, answers[questionNum]);
+            norepans = [questionNum, answerrng1, answerrng2, answerrng3, answerrng4];
+            answeredornot = [];
+            for(let i = 0; i < answers.length; i ++){
+                answeredornot.push(false);
+            }
+        }
+        function clear(){
+            if(canvasColor == "white"){
+                ctx.fillStyle = "#6b6b6b";
+            }
+            if(canvasColor == "red"){
+                ctx.fillStyle = "rgb(127, 0, 0)";
+            }
+            if(canvasColor == "green"){
+                ctx.fillStyle = "rgb(0, 127, 0)";
+            }
+            ctx.fillRect(0,0,1200,800);
+        }
+        function shuffleArray(array) {
+            for (let i = array[0].length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[0][i], array[0][j]] = [array[0][j], array[0][i]];
+            }
+        }
+        function multipleChoice(){
+            ctx.fillStyle = "#000000";
+            ctx.font = '48px serif';
+            mcquestion = questions[questionNum];
+            mcanswer = answers[questionNum];
+            ctx.fillText(mcquestion, 10, 50);
+            ctx.beginPath();
+            ctx.rect(75, 550, 500, 200);
+            ctx.rect(625, 550, 500, 200);
+            ctx.rect(75, 300, 500, 200);
+            ctx.rect(625, 300, 500, 200);
+            if(answered){
+                ctx.rect(875, 150, 250, 100);
+                ctx.font = '20px serif';
+                ctx.fillText("continue", 875, 205);
+            }
+            ctx.stroke();
+            while (true){
+                let repeat = false;
+                for (i=0;i<answers.length;i++){
+                    let matches = 0;
+                    for(m=0;m<5;m++){                        
+                        if(norepans[m] == i){
+                            matches ++;
+                        }
+                        if(matches > 1){
+                            repeat = true;
+                        }
+                    }
+                }
+                if(!repeat){
+                    break;
+                }
+                answerrng1=generateRandom(0, answers.length-1, answers[questionNum]);
+                answerrng2=generateRandom(0, answers.length-1, answers[questionNum]);
+                answerrng3=generateRandom(0, answers.length-1, answers[questionNum]);
+                answerrng4=generateRandom(0, answers.length-1, answers[questionNum]);
+                norepans = [questionNum, answerrng1, answerrng2, answerrng3, answerrng4];
+            }
+            if(answerNum == 1){
+                ctx.font = '20px serif';
+                ctx.fillText(mcanswer, 75, 410);
+            }
+            else{
+                ctx.font = '20px serif';
+                ctx.fillText(answers[answerrng1], 75, 410);
+            }
+            if(answerNum == 2){
+                ctx.font = '20px serif';
+                ctx.fillText(mcanswer, 625, 410);
+            }
+            else{
+                ctx.font = '20px serif';
+                ctx.fillText(answers[answerrng2], 625, 410);
+            }
+            if(answerNum == 3){
+                ctx.font = '20px serif';
+                ctx.fillText(mcanswer, 75, 660);
+            }
+            else{
+                ctx.font = '20px serif';
+                ctx.fillText(answers[answerrng3], 75, 660);
+            }
+            if(answerNum == 4){
+                ctx.font = '20px serif';
+                ctx.fillText(mcanswer, 625, 660);
+            }
+            else{
+                ctx.font = '20px serif';
+                ctx.fillText(answers[answerrng4], 625, 660);
+            }
+            if(answered == true){
+                if(answerNum == 1){
+                    checkmark(500,400);
+                }else{
+                    xmark(500,400);                   
+                }
+                if(answerNum == 2){
+                    checkmark(1050,400);
+                }else{
+                    xmark(1050,400);                   
+                }
+                if(answerNum == 3){
+                    checkmark(500,650);
+                }else{
+                    xmark(500,650);                   
+                }
+                if(answerNum == 4){
+                    checkmark(1050,650);
+                }else{
+                    xmark(1050,650);                   
+                }
+            }
+
+        }
+        function generateRandom(min, max, exclude) {
+            var num = Math.floor(Math.random() * (max - min + 1)) + min;
+            return (num === exclude) ? generateRandom(min, max, exclude) : num;
+        }
+        function showscreen(){
+            text_input = document.getElementById("textareainput").value;
+            
+            if(screen == "multiplechoice"){
+                multipleChoice();
+            }
+            if(screen == "entertext"){
+                entertext();
+            }
+        }
+        function xmark(x, y){
+            ctx.save();
+            ctx.fillStyle = 'red';
+            ctx.translate(x, y);
+            ctx.rotate(45 * Math.PI / 180);
+            ctx.fillRect(-40, -10, 80, 20);
+            ctx.restore();
+            ctx.save();
+            ctx.fillStyle = 'red';
+            ctx.translate(x, y);
+            ctx.rotate(135 * Math.PI / 180);
+            ctx.fillRect(-40, -10, 80, 20);
+            ctx.restore();
+        }
+        function checkmark(x, y){
+            ctx.save();
+            ctx.fillStyle = "rgb(0, 200, 0)";
+            ctx.translate(x, y);
+            ctx.rotate(45 * Math.PI / 180);
+            ctx.fillRect(-40, 20, 40, 20);
+            ctx.restore();
+            ctx.save();
+            ctx.fillStyle = "rgb(0, 200, 0)";
+            ctx.translate(x, y);
+            ctx.rotate(135 * Math.PI / 180);
+            ctx.fillRect(-40, -10, 80, 20);
+            ctx.restore();
+        }
+        window.addEventListener('mousemove', mousemove);
+        function mousemove(event){
+            mousex = event.clientX;
+            mousey = event.clientY;
+        }
+        window.addEventListener('mousedown', e => {
+            if(screen == "multiplechoice"){
+                if((mousex > 575 && mousex < 1075) && (mousey > 325 && mousey < 525)){
+                    selectedans = 1;
+                    answered = true;
+                }
+                if((mousex > 1125 && mousex < 1675) && (mousey > 325 && mousey < 525)){
+                    selectedans = 2;
+                    answered = true;
+                }
+                if((mousex > 575 && mousex < 1075) && (mousey > 575 && mousey < 725)){
+                    selectedans = 3;
+                    answered = true;
+                }
+                if((mousex > 1125 && mousex < 1675) && (mousey > 575 && mousey < 725)){
+                    selectedans = 4;
+                    answered = true;
+                }
+                if((mousex > 1375 && mousex < 1625) && (mousey > 170 && mousey < 270) && answered){
+                    if(answerNum == selectedans){
+                        answeredornot[questionNum] = true;
+                    }
+                    else{
+                        answeredornot[questionNum] = false;
+                        questionNum ++;
+                    }
+                    answered = false;
+                    answerNum = (Math.floor(Math.random() * 4)+1);
+                    answerrng1=generateRandom(0, answers.length-1, answers[questionNum]);
+                    answerrng2=generateRandom(0, answers.length-1, answers[questionNum]);
+                    answerrng3=generateRandom(0, answers.length-1, answers[questionNum]);
+                    answerrng4=generateRandom(0, answers.length-1, answers[questionNum]);
+                    norepans = [questionNum, answerrng1, answerrng2, answerrng3, answerrng4];
+                    mcquestion = questions[questionNum];
+                    mcanswer = answers[answerNum];
+                }
+            }
+            if(screen == "incorrect"){
+                if((mousex > 550 && mousex < 1050) && (mousey > 575 && mousey < 775)){
+                    answeredornot[questionNum] = true;
+                    screen = "entertext"
+                }
+                if((mousex > 1150 && mousex < 1650) && (mousey > 575 && mousey < 775)){
+                    answeredornot[questionNum] = false;
+                    questionNum ++;
+                    screen = "entertext"
+                }
+            }
+            if(screen == "correct"){
+                if((mousex > 550 && mousex < 1050) && (mousey > 575 && mousey < 775)){
+                    answeredornot[questionNum] = false;
+                    questionNum ++;
+                    screen = "entertext"
+                }
+                if((mousex > 1150 && mousex < 1650) && (mousey > 575 && mousey < 775)){
+                    answeredornot[questionNum] = true;
+                    screen = "entertext"
+                }
+            }
+        })
+        function correctornoet(){
+            if(screen == "incorrect"){
+                ctx.fillStyle = "#000000";
+                ctx.font = '48px serif';
+                ctx.fillText(mcquestion, 10, 50);
+                canvasColor = "red";
+                ctx.font = '96px serif';
+                ctx.fillText("Incorrect!", 400, 400);
+                ctx.font = '30px serif';
+                ctx.fillText("Your answer:" + keptAnswer, 400, 450);
+                ctx.font = '30px serif';
+                ctx.fillText("Correct answer:" + answers[questionNum], 400, 500);
+                ctx.fillStyle = "#000000";
+                ctx.beginPath();
+                ctx.rect(50, 550, 500, 200);
+                ctx.fillText("override, I was correct", 50, 650);
+                ctx.rect(650, 550, 500, 200);
+                ctx.fillText("continue", 650, 650);
+                ctx.stroke();        
+            }
+            if(screen == "correct"){
+                canvasColor = "green"
+                ctx.fillStyle = "#000000";
+                ctx.font = '48px serif';
+                ctx.fillText(mcquestion, 10, 50);
+                ctx.font = '96px serif';
+                ctx.fillText("Correct!", 400, 400);
+                ctx.font = '30px serif';
+                ctx.fillText("Your answer:" + keptAnswer, 400, 450);
+                ctx.font = '30px serif';
+                ctx.fillText("Correct answer:" + answers[questionNum], 400, 500);
+                ctx.fillStyle = "#000000";
+                ctx.beginPath();
+                ctx.rect(50, 550, 500, 200);
+                ctx.fillText("override, I was incorrect", 50, 650);
+                ctx.rect(650, 550, 500, 200);
+                ctx.fillText("continue", 650, 650);
+                ctx.stroke();
+            }
+        }
+        function mcnorep(){
+            if(questionNum >= questions.length){
+                questionNum = 0;
+            }
+            if(anticrash != questions.length){
+                if(answeredornot[questionNum]){
+                    questionNum ++;
+                    anticrash ++;
+                    mcnorep();
+                }
+            }
+            else{
+                answeredornot = [];
+                for(let i = 0; i < answers.length; i ++){
+                    answeredornot.push(false);
+                }
+                questionNum = 0;
+            }
+        }
+        var stringSimilarity = function (str1, str2, substringLength, caseSensitive) {
+            if(str1 == str2){
+                return 1;
+            }
+            if (substringLength === void 0) { substringLength = 2; }
+            if (caseSensitive === void 0) { caseSensitive = false; }
+            if (!caseSensitive) {
+                str1 = str1.toLowerCase();
+                str2 = str2.toLowerCase();
+            }
+            if (str1.length < substringLength || str2.length < substringLength)
+                return 0;
+            var map = new Map();
+            for (var i = 0; i < str1.length - (substringLength - 1); i++) {
+                var substr1 = str1.substr(i, substringLength);
+                map.set(substr1, map.has(substr1) ? map.get(substr1) + 1 : 1);
+            }
+            var match = 0;
+            for (var j = 0; j < str2.length - (substringLength - 1); j++) {
+                var substr2 = str2.substr(j, substringLength);
+                var count = map.has(substr2) ? map.get(substr2) : 0;
+                if (count > 0) {
+                    map.set(substr2, count - 1);
+                    match++;
+                }
+            }
+            return (match * 2) / (str1.length + str2.length - ((substringLength - 1) * 2));
+        };
+        function compareStrings(word1, word2){
+            return stringSimilarity(word1, word2);
+        }
+        function entertext(){
+            canvasColor = "white";
+            ctx.fillStyle = "#000000";
+            ctx.font = '24px serif';
+            mcquestion = questions[questionNum];
+            mcanswer = answers[questionNum];
+            ctx.fillText(mcquestion, 100, 400);
+        }
+        function buttonAnswerPress(){
+            keptAnswer = document.getElementById('answertext').value;
+            accuracy = compareStrings(document.getElementById("answertext").value, answers[questionNum]);
+            if(accuracy > 0.88){
+                screen = "correct"
+            }
+            else{
+                screen = "incorrect"          
+            }
+        }
+        function enterPress(){
+            wasKeyNotPressed = true;
+            document.getElementById("answertext").addEventListener("keypress", function(event){
+                wasKeyNotPressed = false;
+                if (event.key === "Enter"){
+                    event.preventDefault();
+                }
+                if (event.key === "Enter" && wasEnterNotPressed) {
+                    if(screen == "correct" || screen == "incorrect"){
+                        answeredornot[questionNum] = (screen == "correct");
+                        questionNum += !(screen == "correct");
+                        screen = "entertext";
+                    }else{
+                        buttonAnswerPress();
+                    }
+                    wasEnterNotPressed = false;
+                    document.getElementById('answertext').value = "";
+                }
+            });
+            if(wasKeyNotPressed){
+                wasEnterNotPressed = true;
+            }
+        }        
+        function main(){
+            anticrash = 0;
+            mcnorep();
+            clear();
+            showscreen();
+            correctornoet();
+            enterPress();
+        }
+        setInterval(main,10);
+    </script>
+</body>
